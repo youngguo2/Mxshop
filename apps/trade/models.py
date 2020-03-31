@@ -23,7 +23,7 @@ class ShoppingCart(BaseModel):
         return ('%s(%d)' %(self.goods.name, self.nums))
 
 
-class OrderInfo(models.Model):
+class OrderInfo(BaseModel):
     """
     订单
     """
@@ -56,3 +56,19 @@ class OrderInfo(models.Model):
 
     def __str__(self):
         return str(self.order_sn)
+
+
+class OrderGoods(BaseModel):
+    """
+    订单的商品详情  针对订单与商品一对多的关系另建Model记录。
+    """
+    order = models.ForeignKey(OrderInfo, verbose_name="订单信息", related_name="goods", on_delete=models.CASCADE)
+    goods = models.ForeignKey(Goods, verbose_name="商品", on_delete=models.CASCADE)
+    goods_num = models.IntegerField(default=0, verbose_name="商品数量")
+
+    class Meta:
+        verbose_name = "订单商品"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return str(self.order.order_sn)

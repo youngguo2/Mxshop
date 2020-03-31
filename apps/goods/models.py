@@ -14,13 +14,13 @@ class GoodsCategory(BaseModel):
         (2, '二级目录'),
         (3, '三级目录'),
     )
-
+    # help_text 在xadmin后台的栏目下方显示，给用户一个描述
     name = models.CharField(max_length=20, verbose_name='类别名', default='', help_text='类别描述')
     code = models.CharField(max_length=20, verbose_name='类别code', default='', help_text='类别代码')
     desc = models.TextField(verbose_name='类别描述', default='', help_text='类别描述')
     category_type = models.IntegerField(choices=CATEGORY_TYPE, verbose_name='类别级别', help_text='类别级别')
     parent_category = models.ForeignKey('self', null=True, blank=True, verbose_name='父类目级别', \
-                                        help_text='父类别级别', related_name='sub_cat')      # foreignkey指向自己用’self'
+                                        help_text='父类别级别', related_name='sub_cat', on_delete=models.CASCADE)      # foreignkey指向自己用’self'
     is_tab = models.BooleanField(default=False, verbose_name='是否导航', help_text='是否导航')
 
     class Meta:
@@ -35,9 +35,9 @@ class GoodsCategoryBrand(BaseModel):
     """
     商品分类处展示商品
     """
-    category = models.ForeignKeyField(GoodsCategory, on_delete=models.CASCADE, related_name='brands', verbose_name='商品类目')
+    category = models.ForeignKey(GoodsCategory, on_delete=models.CASCADE, related_name='brands', verbose_name='商品类目')
     name = models.CharField(max_length=20, verbose_name='品牌名', help_text='品牌名')
-    image = models.ImageField(upload_to='brand/images/', max_length=200, verbose_name='品牌logo', help_text='品牌logo')
+    image = models.ImageField(upload_to='brand/', max_length=200, verbose_name='品牌logo', help_text='品牌logo')
     desc = models.TextField(max_length=200, default='', verbose_name='品牌描述', help_text='品牌描述')
 
     class Meta:
@@ -77,12 +77,12 @@ class Goods(BaseModel):
         return self.name
 
 
-class GoodsImage(models.Model):
+class GoodsImage(BaseModel):
     """
     每个商品的轮播图
     """
     goods = models.ForeignKey(Goods, verbose_name="商品", related_name="images", on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="goods/images/", verbose_name="图片", null=True, blank=True)
+    image = models.ImageField(upload_to="", verbose_name="图片", null=True, blank=True)
 
     class Meta:
         verbose_name = '商品图片'
@@ -92,7 +92,7 @@ class GoodsImage(models.Model):
         return self.goods.name
 
 
-class Banner(models.Model):
+class Banner(BaseModel):
     """
     轮播的商品
     """

@@ -1,3 +1,11 @@
+wsf注释
+DjangoUeditor的具体使用见下面，这里说明在xadmin文件夹下的操作和代码小改动
+将本目录下的ueditor.py拷贝到xadmin第三方包的plugins文件夹下
+在xadmin第三方包的plugins文件夹的__init__.py中加入ueditor
+这时还会报错，注释掉/usr/local/lib/pyon3.7/site-packages/django/forms/boundfield.py中的大概93行
+#renderer=self.form.renderer,
+配置操作到此结束
+**************************
 本模块帮助在Django应用中集成百度Ueditor HTML编辑器,Django是Python世界最有影响力的web框架。
 Ueditor HTML编辑器是百度开源的在线HTML编辑器,功能非常强大，像表格可以直接拖动调整单元格大小等。
 
