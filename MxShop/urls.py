@@ -16,9 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url, include
+from django.views.static import serve
+
+from goods.views_base import GoodsListView
+from MxShop.settings import MEDIA_ROOT  # 以上两步导入media路径所需模块
 import xadmin
 
 urlpatterns = [
     path('xadmin/', xadmin.site.urls),
     url(r'^ueditor/',include('DjangoUeditor.urls')),
+    url(r'^media/(?P<path>.*)$', serve, {'document_root': MEDIA_ROOT}),  # 配置上传文件的访问URL。 serve中有path和document_root两个参数
+    path('goods_list', GoodsListView.as_view(), name='goods-list'),
 ]

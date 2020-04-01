@@ -136,3 +136,6 @@ USE_TZ = False   #默认是Ture，时间是utc时间，由于我们要用本地�
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
