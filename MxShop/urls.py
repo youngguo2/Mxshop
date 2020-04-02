@@ -17,14 +17,20 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url, include
 from django.views.static import serve
-
-from goods.views_base import GoodsListView
 from MxShop.settings import MEDIA_ROOT  # 以上两步导入media路径所需模块
+#生成文档的url设置
+from rest_framework.documentation import include_docs_urls
 import xadmin
+
+# from goods.views_base import GoodsListView
+from goods.views import GoodsListView
+
 
 urlpatterns = [
     path('xadmin/', xadmin.site.urls),
     url(r'^ueditor/',include('DjangoUeditor.urls')),
     url(r'^media/(?P<path>.*)$', serve, {'document_root': MEDIA_ROOT}),  # 配置上传文件的访问URL。 serve中有path和document_root两个参数
-    path('goods_list', GoodsListView.as_view(), name='goods-list'),
+    path('goods/', GoodsListView.as_view(), name='goods-list'),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'docs/', include_docs_urls(title='慕学生鲜')) #生成文档操作
 ]
