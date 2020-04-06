@@ -7,6 +7,7 @@ from rest_framework.pagination import PageNumberPagination  #分页
 from rest_framework import mixins, viewsets
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend   # 复杂过滤功能用的是django-filter
+from rest_framework.authentication import TokenAuthentication
 
 from goods.models import Goods, GoodsCategory
 from goods.serializers import GoodsSerializer, GoodsCategorySerializer
@@ -41,10 +42,10 @@ class GoodsPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class GoodsPriceRangeViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """
-    list: 价格分区数据
-    """
+# class GoodsPriceRangeViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+#     """
+#     list: 价格分区数据
+#     """
 
 
 
@@ -56,6 +57,7 @@ class GoodsListViewset(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Goods.objects.all()  # 属性
     serializer_class = GoodsSerializer
     pagination_class = GoodsPagination  # 分页
+    # authentication_classes = (TokenAuthentication, )  # 设置局部认证，列表页不需要登陆后访问，所以需注释掉
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]  # 过滤，搜索，排序
     # filterset_fields = ['name', 'shop_price'] # drf中的过滤功能
 

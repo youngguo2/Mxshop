@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import sys
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -53,8 +54,11 @@ INSTALLED_APPS = [
     'DjangoUeditor',
     'django_filters',
     'corsheaders',
+    'rest_framework.authtoken',  #需要migrate生成表，所以需要加入apps
 ]
 
+# middelware中间件会介于浏览器和后台间，捕捉request和response进行process处理，比如会拦截session_id 生成session
+# request response 顺序敏感
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -148,10 +152,39 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # rest_framework的相关配置，源码中setting的参数添加或修改在项目里的setting覆写掉,不建议直接修改源码
 #setting中分页的相关配置，参数都是在rest_framework源码中
 REST_FRAMEWORK = {
-# 自定义分页不需要设置
+    # 自定义分页不需要设置
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     # 'PAGE_SIZE': 10,
-#filter设置
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    #filter设置
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    # 用户认证设置, 拦截request并将token解析对照db后取出user,把user放入request中
+    # 如setting中设置此项，则对于所有页面（包括不需登陆可浏览的页面）都会进行登陆验证，这是不对的，所以注释掉，在每个页面的view里单独设置局部验证
+    # 'DEFAULT_AUTHENTICATION_CLASSES': [
+    #     'rest_framework.authentication.BasicAuthentication',
+    #     'rest_framework.authentication.SessionAuthentication',
+    #     'rest_framework.authentication.TokenAuthentication',
+    # ]
+    # json web token 设置
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+        ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        ),
 }
+
+# 用户验证设置
+AUTHENTICATION_BACKENDS = {
+    'users.views.CustomBackend',
+}
+# JSON WEB Token配置
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),  # 过期时间设置
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',     # 前缀设置
+}
+
+# 云片网设置
+YP_APIKEY = '93ee9e9fb6b840ff30ecd3e6c9b5f987'
 
