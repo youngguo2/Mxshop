@@ -8,7 +8,7 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import SmsSerializer
+from .serializers import SmsSerializer, UserRegSerializer
 from utils.yunpian import Yunpian
 from utils.random_str import generate_code
 from users.models import VerifyCode
@@ -61,3 +61,7 @@ class SmsCodeViewset(CreateModelMixin, GenericViewSet):
             return Response({
                 'mobile': mobile
             }, status=status.HTTP_201_CREATED)
+
+
+class UserViewset(CreateModelMixin, GenericViewSet):
+    serializer_class = UserRegSerializer
