@@ -47,10 +47,13 @@ class UserRegSerializer(serializers.ModelSerializer):
                                                        'required': '请输入验证码',
                                                        'max_length': '验证码格式错误',
                                                        'min_length': '验证码格式错误',
-                                                   }, help_text='验证码')
+                                                   }, help_text='验证码', label='验证码', write_only=True)
+    # write_only：不参与序列化后return，用于field中部返回的字段
     # 利用validators类验证用户名是否已注册, 注意validators是列表
-    username = serializers.CharField(required=True, allow_blank=False,
+    username = serializers.CharField(required=True, allow_blank=False, label='用户名',
                                      validators=[UniqueValidator(queryset=User.objects.all(), message='用戶已存在')])
+
+    password = serializers.CharField(style={'input_type': 'password'}, label='密码', write_only=True)
 
     def validate_code(self, code):
         """
@@ -60,7 +63,7 @@ class UserRegSerializer(serializers.ModelSerializer):
         """
         verify_records = VerifyCode.objects.filter(mobile=self.initial_data['username'])  # 前端传来的数据都在self.initial_data中
         if verify_records:
-            last_record = verify_records[0]
+            last_record = verify_records.order_by('-add_time')[0]
             five_minutes_ago = datetime.datetime.now() - datetime.timedelta(minutes=5)
             if five_minutes_ago > last_record.add_time:
                 raise serializers.ValidationError('验证码过期')
@@ -81,4 +84,4 @@ class UserRegSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'code', 'mobile']
+        fields = ['username', 'code', 'mobile', 'password']

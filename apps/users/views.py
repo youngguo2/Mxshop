@@ -7,6 +7,7 @@ from rest_framework.mixins import CreateModelMixin
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_jwt.serializers import jwt_encode_handler, jwt_payload_handler
 
 from .serializers import SmsSerializer, UserRegSerializer
 from utils.yunpian import Yunpian
@@ -65,3 +66,21 @@ class SmsCodeViewset(CreateModelMixin, GenericViewSet):
 
 class UserViewset(CreateModelMixin, GenericViewSet):
     serializer_class = UserRegSerializer
+    queryset = User.objects.all()
+
+    # 重写creat方法加入token
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = self.perform_create(serializer)
+
+        re_dict = serializer.data
+        payload = jwt_payload_handler(user)
+        re_dict['token'] = jwt_encode_handler(payload)
+        re_dict['name'] = user.name if user.name else user.username
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(re_dict, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        return serializer.save()
