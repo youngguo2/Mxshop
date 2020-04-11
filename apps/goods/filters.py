@@ -10,7 +10,7 @@ class GoodsFilter(df.rest_framework.FilterSet):
     """
     商品过滤类
     """
-    minprice = df.rest_framework.NumberFilter(field_name="shop_price", lookup_expr='gte')
+    minprice = df.rest_framework.NumberFilter(field_name="shop_price", lookup_expr='gte', help_text='最低价格')
     maxprice = df.rest_framework.NumberFilter(field_name="shop_price", lookup_expr='lte')
     # name = df.rest_framework.CharFilter(field_name='name', lookup_expr='icontains')
     top_category = df.rest_framework.NumberFilter(method='top_category_filter')  # 利用method定义过滤Model字段中没有的过滤项
@@ -29,4 +29,4 @@ class GoodsFilter(df.rest_framework.FilterSet):
 
     class Meta:
         model = Goods
-        fields = ['minprice', 'maxprice', 'top_category']
+        fields = ['minprice', 'maxprice', 'top_category', 'is_hot']

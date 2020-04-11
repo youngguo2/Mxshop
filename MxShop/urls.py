@@ -28,6 +28,7 @@ import xadmin
 # from goods.views_base import GoodsListView
 from goods.views import GoodsListViewset, CategoryViewSet  # GoodsPriceRangeViewSet
 from users.views import SmsCodeViewset, UserViewset
+from user_operation.views import UserFavViewset
 
 router = DefaultRouter()
 # 配置goods的url,自动将'get'和'list'绑定
@@ -38,8 +39,10 @@ router.register('categorys', CategoryViewSet, basename='categorys')
 # router.register('priceRange', GoodsPriceRangeViewSet, basename='priceRange')
 # 配置user验证码url
 router.register('codes', SmsCodeViewset, basename='codes')
-
+# 用户注册登录
 router.register('users', UserViewset, basename='users')
+# 收藏
+router.register('userfavs', UserFavViewset, basename='userfavs')
 
 urlpatterns = [
     path('xadmin/', xadmin.site.urls),
@@ -48,7 +51,7 @@ urlpatterns = [
     # path('goods/', GoodsListView.as_view(), name='goods-list'),
     path('', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),  # 用户登录
-    url(r'docs/', include_docs_urls(title='慕学生鲜')),  # 生成文档操作
+    url(r'docs/', include_docs_urls(title='慕学生鲜')),  # 自动生成文档操作
     # url(r'^api-token-auth/', views.obtain_auth_token),  # 用于token验证,提交用户名及密码会返回token的key
     url(r'^login/', obtain_jwt_token),         # 用于jwt验证的接口,提交用户名及密码会解析出并返回jwt
 ]

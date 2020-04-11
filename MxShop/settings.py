@@ -164,15 +164,17 @@ REST_FRAMEWORK = {
     #     'rest_framework.authentication.SessionAuthentication',
     #     'rest_framework.authentication.TokenAuthentication',
     # ]
+    # 下面的如果打开则所有操作必须在登陆后才能进行
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    #     ),
     # json web token 设置
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-        ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication', # 并不是所有页面都需要token验证
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',  # 生成文档配置
 }
 
 # 用户验证设置

@@ -16,9 +16,10 @@ class UserFav(BaseModel):
     class Meta:
         verbose_name = '用户收藏'
         verbose_name_plural = verbose_name
+        unique_together = ['user', 'goods']  # 联合索引，避免生成两条user goods同时重复的记录
 
     def __str__(self):
-        return self.user.name
+        return self.user.username
 
 
 class UserLeavingMessage(BaseModel):

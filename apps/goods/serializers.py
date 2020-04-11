@@ -3,7 +3,16 @@
 """
 from rest_framework import serializers
 
-from .models import Goods, GoodsCategory
+from .models import Goods, GoodsCategory,GoodsImage
+
+
+class GoodsImageSerializer(serializers.ModelSerializer):
+    """
+    序列化商品详情页的图片
+    """
+    class Meta:
+        model = GoodsImage
+        fields = ['image']
 
 
 class GoodsCategorySerializer3(serializers.ModelSerializer):
@@ -20,7 +29,7 @@ class GoodsCategorySerializer2(serializers.ModelSerializer):
     序列化商品二级种类
     """
     # 这种写法无效：parent_category_set = GoodsCategorySerializer3(many=True)
-    sub_cat = GoodsCategorySerializer3(many=True) #相当于Serializer3中加入 parent_category=GoodsCategorySerializer2()
+    sub_cat = GoodsCategorySerializer3(many=True)  # 相当于Serializer3中加入 parent_category=GoodsCategorySerializer2()
 
     class Meta:
         model = GoodsCategory
@@ -42,8 +51,8 @@ class GoodsSerializer(serializers.ModelSerializer):
     """
     序列化商品
     """
-    category = GoodsCategorySerializer()  #覆写modelform, 用外键的model替换外键。注意，后缀是Serializer
-
+    category = GoodsCategorySerializer()  # 覆写modelform, 用外键的model替换外键。注意，后缀是Serializer
+    images = GoodsImageSerializer(many=True)  # many=True 一对多关系。将images配置到商品的serializers里
     class Meta:
         model = Goods
-        fields = '__all__'  #field完全copy Goods
+        fields = '__all__'  # field完全copy Goods

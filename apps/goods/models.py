@@ -14,7 +14,7 @@ class GoodsCategory(BaseModel):
         (2, '二级目录'),
         (3, '三级目录'),
     )
-    # help_text 在xadmin后台的栏目下方显示，给用户一个描述
+    # help_text 在xadmin后台的栏目下方显示，给用户一个描述，同时可以在文档中作为description展示
     name = models.CharField(max_length=20, verbose_name='类别名', default='', help_text='类别描述')
     code = models.CharField(max_length=20, verbose_name='类别code', default='', help_text='类别代码')
     desc = models.TextField(verbose_name='类别描述', default='', help_text='类别描述')

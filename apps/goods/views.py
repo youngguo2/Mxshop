@@ -48,8 +48,7 @@ class GoodsPagination(PageNumberPagination):
 #     """
 
 
-
-class GoodsListViewset(mixins.ListModelMixin, viewsets.GenericViewSet):
+class GoodsListViewset(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     利用Viewsets进一步优化，与urls中的Router配合
     商品列表页
