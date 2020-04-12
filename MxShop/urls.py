@@ -28,7 +28,7 @@ import xadmin
 # from goods.views_base import GoodsListView
 from goods.views import GoodsListViewset, CategoryViewSet  # GoodsPriceRangeViewSet
 from users.views import SmsCodeViewset, UserViewset
-from user_operation.views import UserFavViewset
+from user_operation.views import UserFavViewset, LeavingMessageViewset, AddressViewset
 
 router = DefaultRouter()
 # 配置goods的url,自动将'get'和'list'绑定
@@ -43,6 +43,10 @@ router.register('codes', SmsCodeViewset, basename='codes')
 router.register('users', UserViewset, basename='users')
 # 收藏
 router.register('userfavs', UserFavViewset, basename='userfavs')
+# 留言
+router.register('messages', LeavingMessageViewset, basename='messages')
+# 地址
+router.register('address', AddressViewset, basename='address')
 
 urlpatterns = [
     path('xadmin/', xadmin.site.urls),

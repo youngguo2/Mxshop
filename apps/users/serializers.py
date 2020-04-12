@@ -39,6 +39,16 @@ class SmsSerializer(serializers.Serializer):
         return mobile
 
 
+class UserDetailSerializer(serializers.ModelSerializer):
+    """
+    返回至个人中心的个人信息。因序列化内容与UserRegSerializer不同需另建一个class
+    """
+    class Meta:
+        model = User
+        fields = ['name', 'gender', 'birthday', 'email', 'mobile']
+
+
+
 class UserRegSerializer(serializers.ModelSerializer):
     """
     用户注册验证

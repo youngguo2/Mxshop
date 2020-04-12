@@ -19,7 +19,7 @@ class UserProfile(AbstractUser):
     编写OK后需到SETTING中替换掉系统用户
     '''
     name = models.CharField(max_length=30, verbose_name='姓名', default='')
-    birthday = models.DateTimeField(verbose_name='出生年月', null=True, blank=True, default=None)
+    birthday = models.DateField(verbose_name='出生年月', null=True, blank=True, default=None)
     gender = models.CharField(max_length=6, choices=(('male', '男'), ('female', '女')), verbose_name='性别')
     email = models.CharField(max_length=40, verbose_name='邮箱', default='')
     mobile = models.CharField(max_length=11, verbose_name='电话', null=True, blank=True)

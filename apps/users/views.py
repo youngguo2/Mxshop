@@ -3,13 +3,16 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 
-from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_jwt.serializers import jwt_encode_handler, jwt_payload_handler
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
 
-from .serializers import SmsSerializer, UserRegSerializer
+from .serializers import SmsSerializer, UserRegSerializer, UserDetailSerializer
 from utils.yunpian import Yunpian
 from utils.random_str import generate_code
 from users.models import VerifyCode
@@ -46,12 +49,12 @@ class SmsCodeViewset(CreateModelMixin, GenericViewSet):
 
         mobile = serializer.validated_data['mobile']
 
-        #生成并发送验证码
+        # 生成并发送验证码
         yunpian = Yunpian()
         code = generate_code()
         sms_status = yunpian.send_sms(code, mobile)
 
-        #将验证码发送状态发送到前端,若成功则保存到数据库
+        # 将验证码发送状态发送到前端,若成功则保存到数据库
         if sms_status['code'] != 0:
             return Response({
                 mobile: sms_status['msg']
@@ -64,9 +67,28 @@ class SmsCodeViewset(CreateModelMixin, GenericViewSet):
             }, status=status.HTTP_201_CREATED)
 
 
-class UserViewset(CreateModelMixin, GenericViewSet):
-    serializer_class = UserRegSerializer
+class UserViewset(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
+    # serializer_class = UserRegSerializer
     queryset = User.objects.all()
+    authentication_classes = [JSONWebTokenAuthentication, SessionAuthentication]
+
+    # 覆写针对不同方法选择不同的serializer
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return UserDetailSerializer
+        elif self.action == 'creat':
+            return UserRegSerializer
+        else:
+            return UserDetailSerializer
+
+    # 覆写针对不同方法选择不同的permission
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return [IsAuthenticated()]  # 必须加（）实例化
+        elif self.action == 'creat':
+            return []
+
+        return []
 
     # 重写creat方法加入token
     def create(self, request, *args, **kwargs):
@@ -84,3 +106,7 @@ class UserViewset(CreateModelMixin, GenericViewSet):
 
     def perform_create(self, serializer):
         return serializer.save()
+
+    # 覆写获取具体实例的方法，确保个人中心返回的数据属于当前用户
+    def get_object(self):
+        return self.request.user
