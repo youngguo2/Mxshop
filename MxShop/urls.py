@@ -29,6 +29,7 @@ import xadmin
 from goods.views import GoodsListViewset, CategoryViewSet  # GoodsPriceRangeViewSet
 from users.views import SmsCodeViewset, UserViewset
 from user_operation.views import UserFavViewset, LeavingMessageViewset, AddressViewset
+from trade.views import ShoppingCartViewset
 
 router = DefaultRouter()
 # 配置goods的url,自动将'get'和'list'绑定
@@ -47,6 +48,8 @@ router.register('userfavs', UserFavViewset, basename='userfavs')
 router.register('messages', LeavingMessageViewset, basename='messages')
 # 地址
 router.register('address', AddressViewset, basename='address')
+# 购物车
+router.register('shopcarts', ShoppingCartViewset, basename='shopcarts')
 
 urlpatterns = [
     path('xadmin/', xadmin.site.urls),
