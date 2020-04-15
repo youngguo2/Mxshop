@@ -1,13 +1,16 @@
 __author__ = 'Yuxiang'
 
+import time
+from random import Random
+
 from rest_framework import serializers
 
 from goods.models import Goods
-from .models import ShoppingCart
+from .models import ShoppingCart, OrderInfo, OrderGoods
 from goods.serializers import GoodsSerializer
 
 
-class ShoppingCartDetailSerializer(serializers, serializers.ModelSerializer):
+class ShoppingCartDetailSerializer(serializers.ModelSerializer):
     goods = GoodsSerializer(many=False)
 
     class Meta:
@@ -42,3 +45,27 @@ class ShoppingCartSerializer(serializers.Serializer):
         instance.nums = validated_data['nums']
         instance.save()
         return instance
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    """
+    订单
+    """
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    pay_status = serializers.CharField(read_only=True)
+    trade_no = serializers.CharField(read_only=True)
+    order_sn = serializers.CharField(read_only=True)
+    pay_time = serializers.DateTimeField(read_only=True)
+
+    def generate_order_sn(self):
+        # 当前时间+ID+2位随机数
+        random_ins = Random()
+        return '{}{}{}'.format(time.strftime('%Y%m%d%h%m'), self.context['request'].user.id, random_ins.randint(10, 99))
+
+    def validate(self, attrs):
+        attrs['oder_sn'] = self.generate_order_sn()
+        return attrs
+
+    class Meta:
+        model = OrderInfo
+        fields = '__all__'
