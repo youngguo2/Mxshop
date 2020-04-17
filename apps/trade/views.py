@@ -6,7 +6,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from .models import ShoppingCart, OrderInfo, OrderGoods
-from .serializers import ShoppingCartSerializer, ShoppingCartDetailSerializer, OrderSerializer
+from .serializers import ShoppingCartSerializer, ShoppingCartDetailSerializer, OrderSerializer, OrderDetailSerializer
 
 
 class ShoppingCartViewset(viewsets.ModelViewSet):
@@ -28,16 +28,21 @@ class ShoppingCartViewset(viewsets.ModelViewSet):
         return ShoppingCartSerializer
 
 
-class OrderViewset(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+class OrderViewset(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     订单管理
     """
     authentication_classes = [JSONWebTokenAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
-    serializer_class = OrderSerializer
+    # serializer_class = OrderSerializer
 
     def get_queryset(self):
         return OrderInfo.objects.filter(user=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return OrderDetailSerializer
+        return OrderSerializer
 
     def perform_create(self, serializer):
         order = serializer.save()

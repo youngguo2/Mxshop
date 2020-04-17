@@ -69,3 +69,19 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderInfo
         fields = '__all__'
+
+
+class OrderGoodsSerializer(serializers.ModelSerializer):
+    goods = GoodsSerializer(many=False)
+
+    class Meta:
+        model = OrderGoods
+        fields = '__all__'
+
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+    goods = OrderGoodsSerializer(many=True)
+
+    class Meta:
+        model = OrderInfo
+        fields = '__all__'
