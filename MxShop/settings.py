@@ -31,7 +31,7 @@ SECRET_KEY = 's^$wzw9h+y=z=-jh+s+he@um-d0rwzc*layo&v+de2)o@lf-or'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'users.UserProfile'
 
@@ -102,8 +102,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mxshop',
         'USER': 'root',
-        'PASSWORD': 'gyx1884454',
-        'HOST': '127.0.0.1',
+        'PASSWORD': '123',
+        'HOST': '140.143.127.148',
     }
 }
 
@@ -148,6 +148,7 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
 
 # rest_framework的相关配置，源码中setting的参数添加或修改在项目里的setting覆写掉,不建议直接修改源码
 #setting中分页的相关配置，参数都是在rest_framework源码中
@@ -189,4 +190,8 @@ JWT_AUTH = {
 
 # 云片网设置
 YP_APIKEY = '93ee9e9fb6b840ff30ecd3e6c9b5f987'
+
+# 支付宝相关配置
+private_key_path = os.path.join(BASE_DIR, 'apps/trade/keys/private_2048.txt')
+ali_pub_key_path = os.path.join(BASE_DIR, 'apps/trade/keys/alipay_key_2048.txt')
 

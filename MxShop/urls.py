@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url, include
 from django.views.static import serve
+from django.views.generic import TemplateView
 from MxShop.settings import MEDIA_ROOT  # 以上两步导入media路径所需模块
 #生成文档的url设置
 from rest_framework.documentation import include_docs_urls
@@ -29,7 +30,7 @@ import xadmin
 from goods.views import GoodsListViewset, CategoryViewSet  # GoodsPriceRangeViewSet
 from users.views import SmsCodeViewset, UserViewset
 from user_operation.views import UserFavViewset, LeavingMessageViewset, AddressViewset
-from trade.views import ShoppingCartViewset, OrderViewset
+from trade.views import ShoppingCartViewset, OrderViewset, AlipayView
 
 router = DefaultRouter()
 # 配置goods的url,自动将'get'和'list'绑定
@@ -63,4 +64,6 @@ urlpatterns = [
     url(r'docs/', include_docs_urls(title='慕学生鲜')),  # 自动生成文档操作
     # url(r'^api-token-auth/', views.obtain_auth_token),  # 用于token验证,提交用户名及密码会返回token的key
     url(r'^login/', obtain_jwt_token),         # 用于jwt验证的接口,提交用户名及密码会解析出并返回jwt
+    path('alipay/return/', AlipayView.as_view(), name='alipay'),
+    path('index/', TemplateView.as_view(template_name='index.html'), name='index'),
 ]

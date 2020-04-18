@@ -1,12 +1,19 @@
+from datetime import datetime
+
 from rest_framework import viewsets
 from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated
 from utils.permissons import IsOwnerOrReadOnly
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.shortcuts import redirect
 
 from .models import ShoppingCart, OrderInfo, OrderGoods
+from utils.alipay import AliPay
 from .serializers import ShoppingCartSerializer, ShoppingCartDetailSerializer, OrderSerializer, OrderDetailSerializer
+from MxShop.settings import private_key_path, ali_pub_key_path
 
 
 class ShoppingCartViewset(viewsets.ModelViewSet):
@@ -58,3 +65,80 @@ class OrderViewset(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.Lis
             cart.delete()
         return order
 
+
+class AlipayView(APIView):
+    def get(self, request):
+        """
+        处理支付宝return url
+        :param request:
+        :return:
+        """
+        processed_dict = {}
+        for key, value in request.GET.items():
+            processed_dict[key] = value
+        sign = processed_dict.pop('sign', None)
+
+        alipay = AliPay(
+            appid="2016102300747529",
+            app_notify_url="http://140.143.127.148/alipay/return/",
+            app_private_key_path=private_key_path,
+            alipay_public_key_path=ali_pub_key_path,  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+            debug=True,  # 默认False,
+            return_url="http://140.143.127.148:8000/alipay/return/"
+        )
+
+        verify_re = alipay.verify(processed_dict, sign)
+
+        if verify_re:
+            order_sn = processed_dict.get('out_trade_no', None)
+            trade_no = processed_dict.get('trade_no', None)
+            trade_status = processed_dict.get('trade_status', None)
+
+            existed_orders = OrderInfo.objects.filter(order_sn=order_sn)  # filter返回一个数组
+            for existed_order in existed_orders:
+                existed_order.pay_status = trade_status
+                existed_order.trade_no = trade_no
+                existed_order.pay_time = datetime.now()
+                existed_order.save()
+
+            response = redirect('index')
+            response.set_cookie('nextPath', 'pay', max_age=2)  # 进入个人订单页面
+        else:
+            response = redirect('index')
+        return response
+
+    def post(self, request):
+        """
+        处理支付宝notify_url
+        :param request:
+        :return:
+        """
+        processed_dict = {}
+        for key, value in request.POST.items():
+            processed_dict[key] = value
+        sign = processed_dict.pop('sign', None)
+
+        alipay = AliPay(
+            appid="2016102300747529",
+            app_notify_url="http://140.143.127.148/alipay/return/",
+            app_private_key_path=private_key_path,
+            alipay_public_key_path=ali_pub_key_path,  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+            debug=True,  # 默认False,
+            return_url="http://140.143.127.148:8000/alipay/return/"
+        )
+
+        verify_re = alipay.verify(processed_dict, sign)
+
+        if verify_re:
+            order_sn = processed_dict.get('out_trade_no', None)
+            trade_no = processed_dict.get('trade_no', None)
+            trade_status = processed_dict.get('trade_status', None)
+
+            existed_orders = OrderInfo.objects.filter(order_sn=order_sn)  # filter返回一个数组
+            for existed_order in existed_orders:
+                existed_order.pay_status = trade_status
+                existed_order.trade_no = trade_no
+                existed_order.pay_time = datetime.now()
+                existed_order.save()
+
+            return Response('success')
