@@ -27,7 +27,7 @@ from rest_framework_jwt.views import obtain_jwt_token  # 用于json web token验
 import xadmin
 
 # from goods.views_base import GoodsListView
-from goods.views import GoodsListViewset, CategoryViewSet  # GoodsPriceRangeViewSet
+from goods.views import GoodsListViewset, CategoryViewSet, BannerViewset, IndexCategoryViewset  # GoodsPriceRangeViewSet
 from users.views import SmsCodeViewset, UserViewset
 from user_operation.views import UserFavViewset, LeavingMessageViewset, AddressViewset
 from trade.views import ShoppingCartViewset, OrderViewset, AlipayView
@@ -53,6 +53,12 @@ router.register('address', AddressViewset, basename='address')
 router.register('shopcarts', ShoppingCartViewset, basename='shopcarts')
 # 订单
 router.register('orders', OrderViewset, basename='orders')
+# 轮播图
+router.register('banners', BannerViewset, basename='banners')
+# 类别商品展示
+router.register('indexgoods', IndexCategoryViewset, basename='indexgoods')
+# 新品
+
 
 urlpatterns = [
     path('xadmin/', xadmin.site.urls),

@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'DjangoUeditor',
     'django_filters',
     'corsheaders',
-    'rest_framework.authtoken',  #需要migrate生成表，所以需要加入apps
+    'rest_framework.authtoken',  # 需要migrate生成表，所以需要加入apps
 ]
 
 # middelware中间件会介于浏览器和后台间，捕捉request和response进行process处理，比如会拦截session_id 生成session
@@ -176,6 +176,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         ),
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',  # 生成文档配置
+    # IP 限速配置
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',
+        'user': '1000/day'
+    }
 }
 
 # 用户验证设置
@@ -195,3 +204,18 @@ YP_APIKEY = '93ee9e9fb6b840ff30ecd3e6c9b5f987'
 private_key_path = os.path.join(BASE_DIR, 'apps/trade/keys/private_2048.txt')
 ali_pub_key_path = os.path.join(BASE_DIR, 'apps/trade/keys/alipay_key_2048.txt')
 
+# 缓存设置
+REST_FRAMEWORK_EXTENSIONS = {
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
+}
+
+# django-redis设置
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}

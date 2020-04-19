@@ -61,6 +61,12 @@ class UserFavViewset(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.L
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     lookup_field = 'goods_id'  # 配合retrievemodelMixin使用。查询返回的字段名，默认为pk
 
+    # def perform_create(self, serializer):
+    #     instance = serializer.save()
+    #     goods = instance.goods
+    #     goods.fav_num += 1
+    #     goods.save()
+
     # class中所有操作都是对user各自的记录进行的
     def get_queryset(self):
         return UserFav.objects.filter(user=self.request.user)

@@ -29,6 +29,27 @@ class ShoppingCartViewset(viewsets.ModelViewSet):
     def get_queryset(self):
         return ShoppingCart.objects.filter(user=self.request.user)
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        goods = instance.goods
+        goods.goods_num -= instance.nums
+        goods.save()
+
+    def perform_destroy(self, instance):
+        goods = instance.goods
+        goods.goods_num += instance.nums
+        goods.save()
+        instance.delete()
+
+    def perform_update(self, serializer):
+        existed_record = ShoppingCart.objects.filter(id=serializer.instance.id)
+        existed_nums = existed_record.nums
+        saved_record = serializer.save()
+        nums = saved_record.nums - existed_nums
+        goods = saved_record.goods
+        goods.goods_num -= nums
+        goods.save()
+
     def get_serializer_class(self):
         if self.action == 'list':
             return ShoppingCartDetailSerializer
@@ -95,11 +116,18 @@ class AlipayView(APIView):
             trade_status = processed_dict.get('trade_status', None)
 
             existed_orders = OrderInfo.objects.filter(order_sn=order_sn)  # filter返回一个数组
+            # 修改售卖数
             for existed_order in existed_orders:
-                existed_order.pay_status = trade_status
-                existed_order.trade_no = trade_no
-                existed_order.pay_time = datetime.now()
-                existed_order.save()
+                order_goods = existed_order.goods.all()  # 外键不需要objects.all()
+                for order_good in order_goods:
+                    goods = order_good.goods
+                    goods.sold_num += order_good.goods_num
+                    goods.save()
+            # 修改订单状态
+            existed_order.pay_status = trade_status
+            existed_order.trade_no = trade_no
+            existed_order.pay_time = datetime.now()
+            existed_order.save()
 
             response = redirect('index')
             response.set_cookie('nextPath', 'pay', max_age=2)  # 进入个人订单页面

@@ -106,3 +106,18 @@ class Banner(BaseModel):
 
     def __str__(self):
         return self.goods.name
+
+
+class IndexAd(BaseModel):
+    """
+    各类别展示的广告位
+    """
+    category = models.ForeignKey(GoodsCategory, related_name='category_ad', verbose_name="商品类目", on_delete=models.CASCADE)
+    goods = models.ForeignKey(Goods, verbose_name="商品", related_name='goods_ad', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = '商品广告'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.goods.name

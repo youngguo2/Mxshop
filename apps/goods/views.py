@@ -8,9 +8,11 @@ from rest_framework import mixins, viewsets
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend   # 复杂过滤功能用的是django-filter
 from rest_framework.authentication import TokenAuthentication
+from rest_framework_extensions.cache.mixins import CacheResponseMixin  # 内存中设置缓存,重启后消失
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
-from goods.models import Goods, GoodsCategory
-from goods.serializers import GoodsSerializer, GoodsCategorySerializer
+from goods.models import Goods, GoodsCategory, Banner
+from goods.serializers import GoodsSerializer, GoodsCategorySerializer, BannerSerializer, IndexCategorySerializer
 from goods.filters import GoodsFilter
 
 
@@ -48,14 +50,23 @@ class GoodsPagination(PageNumberPagination):
 #     """
 
 
-class GoodsListViewset(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class GoodsListViewset(CacheResponseMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     利用Viewsets进一步优化，与urls中的Router配合
     商品列表页
     """
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]  # 用户限速通过用户ID，匿名用户（未登录）限速通过IP地址
     queryset = Goods.objects.all()  # 属性
     serializer_class = GoodsSerializer
     pagination_class = GoodsPagination  # 分页
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.click_num += 1
+        instance += 1
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
     # authentication_classes = (TokenAuthentication, )  # 设置局部认证，列表页不需要登陆后访问，所以需注释掉
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]  # 过滤，搜索，排序
     # filterset_fields = ['name', 'shop_price'] # drf中的过滤功能
@@ -75,6 +86,7 @@ class GoodsListViewset(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewset
     #         queryset = queryset.filter(shop_price__gt=int(price_min))
     #     return queryset
 
+
 # RetrieveModelMixin用于获得详情页面，自动注册<int:id>这种的url并自动返回id对应的页面
 class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
@@ -84,3 +96,23 @@ class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets
     """
     queryset = GoodsCategory.objects.filter(category_type=1)
     serializer_class = GoodsCategorySerializer
+
+
+class BannerViewset(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    list:
+        展示轮播图
+    """
+    queryset = Banner.objects.all().order_by('index')
+    serializer_class = BannerSerializer
+
+
+class IndexCategoryViewset(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    list:
+        展示类别商品
+    """
+    queryset = GoodsCategory.objects.filter(is_tab=True)
+    serializer_class = IndexCategorySerializer
+
+
